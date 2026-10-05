@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Delícias da Jô</title>
+<meta name="theme-color" content="#F6D5DC">
+<meta name="description" content="Cocadas, bolos de pote e sabonetes artesanais. Faça seu pedido pelo WhatsApp.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  --rosa:#F6D5DC; --rosa-claro:#FCEBEE; --verde:#D9E9D3; --verde-claro:#EEF6EA;
+  --verde-forte:#4F7A55; --creme:#FFFAF6; --vinho:#4A1F2E; --ouro:#B08A3E;
+  --texto:#3A2A2F; --suave:#7A6A6E; --linha:#EAD9DD;
+  --titulo:'Fraunces',Georgia,'Times New Roman',serif;
+  --corpo:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--corpo);color:var(--texto);background:var(--creme);line-height:1.5;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--verde-forte);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* Topo */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:var(--rosa);border-bottom:1px solid var(--linha)}
+.topbar h1{font-family:var(--titulo);font-weight:700;font-size:1.35rem;color:var(--vinho);letter-spacing:.2px}
+.cart-btn{position:relative;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:var(--vinho);color:#fff;font-weight:700}
+.cart-btn .n{min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--verde);color:var(--vinho);font-size:.8rem;display:grid;place-items:center}
+
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 20px 22px;background:linear-gradient(var(--rosa),var(--rosa-claro))}
+.hero img{width:min(260px,70vw);height:auto;filter:drop-shadow(0 6px 10px rgba(74,31,46,.25))}
+.hero p{margin-top:10px;max-width:30ch;color:var(--vinho);font-weight:600}
+
+/* Categorias */
+.chips{position:sticky;top:calc(56px + env(safe-area-inset-top));z-index:15;display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:var(--creme);border-bottom:1px solid var(--linha);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;border:1.5px solid var(--linha);background:#fff;font-weight:700;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--verde);border-color:var(--verde-forte);color:var(--vinho)}
+
+/* Catálogo */
+main{max-width:980px;margin:0 auto;padding:8px 16px}
+.cat{margin:18px 0;padding:16px 14px 18px;border-radius:24px}
+.cat-cocadas{background:var(--rosa-claro)}
+.cat-bolos{background:var(--verde-claro)}
+.cat-sabao{background:linear-gradient(135deg,var(--rosa-claro),var(--verde-claro))}
+.cat h2{font-family:var(--titulo);font-size:1.3rem;color:var(--vinho);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 0 var(--linha)}
+.ph{aspect-ratio:1;background:var(--rosa);display:grid;place-items:center;font-size:3rem;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.card .info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.card h3{font-size:1rem;font-weight:700;line-height:1.25}
+.card .desc{font-size:.85rem;color:var(--suave);flex:1}
+.price{font-family:var(--titulo);font-weight:700;color:var(--vinho);font-size:1.1rem}
+.add{margin-top:6px;min-height:42px;width:100%;border-radius:12px;background:var(--verde-forte);color:#fff;font-weight:700}
+.step{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.card .step{margin-top:6px;min-height:42px;border-radius:12px;background:var(--verde);padding:0 4px}
+.step button{width:38px;height:38px;border-radius:50%;background:#fff;font-size:1.25rem;font-weight:700;color:var(--vinho)}
+.step b{min-width:24px;text-align:center}
+.empty{color:var(--suave);padding:6px 2px}
+
+/* Barra inferior do carrinho */
+.bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:25;max-width:600px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:18px;background:var(--verde-forte);color:#fff;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+
+footer{max-width:980px;margin:12px auto 0;padding:0 16px 20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+footer button{padding:9px 14px;border-radius:999px;border:1.5px solid var(--linha);background:#fff;color:var(--suave);font-weight:600;font-size:.88rem}
+
+/* Janelas (dialog) */
+dialog{border:0;border-radius:22px;padding:0;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);background:var(--creme);color:var(--texto)}
+dialog::backdrop{background:rgba(74,31,46,.45)}
+.dlg{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px}
+.dlg h2{font-family:var(--titulo);color:var(--vinho);font-size:1.3rem}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem}
+input,select,textarea{padding:11px 12px;border-radius:12px;border:1.5px solid var(--linha);background:#fff;font-weight:400;width:100%}
+textarea{min-height:76px;resize:vertical}
+.btn{min-height:46px;padding:0 18px;border-radius:14px;font-weight:700;background:var(--verde-forte);color:#fff}
+.btn.sec{background:#fff;color:var(--vinho);border:1.5px solid var(--linha)}
+.btn.wa{background:#1f8f4e}
+.btn.danger{background:#fff;color:#a8323e;border:1.5px solid #e8c3c7}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.actions .btn{flex:1}
+details{background:var(--verde-claro);border-radius:14px;padding:10px 12px}
+details summary{font-weight:700;cursor:pointer}
+details .row{margin-top:10px}
+.hint{font-size:.85rem;color:var(--suave)}
+
+.line{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--linha)}
+.line .t{flex:1;min-width:0}.line .t b{display:block}
+.total{display:flex;justify-content:space-between;font-family:var(--titulo);font-size:1.3rem;font-weight:700;color:var(--vinho);padding-top:4px}
+.thumb{width:48px;height:48px;border-radius:12px;background:var(--rosa);display:grid;place-items:center;overflow:hidden;flex:none}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.preview{width:100px;height:100px;border-radius:14px;object-fit:cover;background:var(--rosa)}
+
+/* Admin */
+.adm-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0}
+.adm-head h2{font-family:var(--titulo);color:var(--vinho)}
+.panel{background:#fff;border-radius:18px;padding:6px 14px;margin-bottom:14px}
+.panel.pad{padding:14px;display:flex;flex-direction:column;gap:10px}
+.mini{padding:7px 12px;border-radius:10px;font-weight:700;font-size:.85rem;background:var(--verde);color:var(--vinho)}
+.mini.del{background:#f7dcdf;color:#8d2631}
+
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;background:var(--vinho);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;max-width:90vw;text-align:center}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .2s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
+@media (min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Delícias da Jô</h1>
+  <button class="cart-btn" id="openCart" aria-label="Abrir carrinho">
+    <span aria-hidden="true">🛍️</span> Carrinho <span class="n" id="badge">0</span>
+  </button>
+</header>
+
+<!-- ===== CLIENTE ===== -->
+<div id="shop">
+  <section class="hero">
+    <img src="icons/logo.png" alt="Logo Delícias da Jô" width="260">
+    <p>Cocadas, bolos de pote e sabonetes feitos à mão, com todo carinho.</p>
+  </section>
+  <nav class="chips" id="chips" aria-label="Categorias"></nav>
+  <main id="catalog"></main>
+  <footer>
+    <button id="installBtn" hidden>📲 Instalar app</button>
+    <button id="openAdmin">🔒 Área da Jô</button>
+  </footer>
+  <div class="bar" id="bar" hidden>
+    <span id="barInfo"></span><button id="barBtn" style="color:#fff;font-weight:700">Ver carrinho</button>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<main id="admin" hidden>
+  <div class="adm-head">
+    <h2>Gestão de produtos</h2>
+    <div class="actions" style="flex:none">
+      <button class="btn" id="newProd">+ Novo produto</button>
+      <button class="btn sec" id="exitAdmin">Voltar ao catálogo</button>
+    </div>
+  </div>
+  <div class="panel" id="admList"></div>
+  <div class="panel pad">
+    <h3 style="font-family:var(--titulo);color:var(--vinho)">Configurações</h3>
+    <label>WhatsApp de atendimento (com DDD, só números)
+      <input id="cfgPhone" inputmode="numeric" placeholder="5511999999999">
+    </label>
+    <p class="hint">Use o código do país: 55 + DDD + número. Ex.: 5511987654321</p>
+    <label>Nova senha do painel (deixe em branco para manter)
+      <input id="cfgPass" type="password" autocomplete="new-password">
+    </label>
+    <button class="btn" id="saveCfg">Salvar configurações</button>
+    <hr style="border:0;border-top:1px solid var(--linha)">
+    <p class="hint">Os produtos ficam salvos neste aparelho. Faça uma cópia de segurança de vez em quando.</p>
+    <div class="actions">
+      <button class="btn sec" id="exportBtn">Baixar cópia</button>
+      <button class="btn sec" id="importBtn">Restaurar cópia</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</main>
+
+<!-- Carrinho -->
+<dialog id="cartDlg"><div class="dlg">
+  <h2>Seu pedido</h2>
+  <div id="cartBody"></div>
+  <div id="cartForm">
+    <div class="total"><span>Total</span><span id="cartTotal"></span></div>
+    <label style="margin-top:10px">Seu nome <input id="cName" autocomplete="name" placeholder="Como podemos te chamar?"></label>
+    <label style="margin-top:10px">Observações <textarea id="cNote" placeholder="Entrega, retirada, horário, sabor preferido…"></textarea></label>
+  </div>
+  <div class="actions">
+    <button class="btn sec" data-close>Continuar comprando</button>
+    <button class="btn wa" id="sendWa">Finalizar pelo WhatsApp</button>
+  </div>
+</div></dialog>
+
+<!-- Login -->
+<dialog id="loginDlg"><form class="dlg" id="loginForm">
+  <h2>Área da Jô</h2>
+  <label>Senha <input id="loginPass" type="password" autocomplete="current-password" required></label>
+  <p class="hint" id="loginHint">Primeiro acesso? A senha inicial é <b>jo123</b>. Troque-a nas configurações.</p>
+  <div class="actions"><button type="button" class="btn sec" data-close>Cancelar</button><button class="btn">Entrar</button></div>
+</form></dialog>
+
+<!-- Produto -->
+<dialog id="prodDlg"><form class="dlg" id="prodForm" style="overflow:auto;max-height:calc(100dvh - 24px)">
+  <h2 id="prodTitle">Novo produto</h2>
+  <label>Nome do produto <input id="pName" required maxlength="60"></label>
+  <label>Categoria <select id="pCat"></select></label>
+  <label>Descrição <textarea id="pDesc" maxlength="200"></textarea></label>
+  <label>Preço de venda (R$) <input id="pPrice" inputmode="decimal" required placeholder="0,00"></label>
+  <details>
+    <summary>Calcular preço de venda</summary>
+    <div class="row">
+      <label>Custo (R$) <input id="pCost" inputmode="decimal" placeholder="0,00"></label>
+      <label>Margem de lucro (%) <input id="pMargin" inputmode="decimal" value="100"></label>
+    </div>
+    <p class="hint" id="calcOut" style="margin-top:8px">Informe o custo para ver o preço sugerido.</p>
+    <button type="button" class="mini" id="useCalc" hidden style="margin-top:8px">Usar este preço</button>
+  </details>
+  <div>
+    <b style="font-size:.9rem">Foto</b>
+    <div class="row" style="align-items:center;margin-top:6px">
+      <img class="preview" id="pPrev" alt="" hidden style="flex:none;width:100px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input type="file" id="pFile" accept="image/*">
+        <input id="pUrl" inputmode="url" placeholder="ou cole o link de uma foto (https://…)">
+        <button type="button" class="mini del" id="rmImg" hidden>Remover foto</button>
+      </div>
+    </div>
+  </div>
+  <div class="actions"><button type="button" class="btn sec" data-close>Cancelar</button><button class="btn">Salvar produto</button></div>
+</form></dialog>
+
+<script>
+'use strict';
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const brl = n => Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const num = v => parseFloat(String(v).replace(/\./g, '').replace(',', '.')) || 0;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { toast('Sem espaço para salvar. Use fotos menores.'); return false; } }
+};
+let toastTimer;
+function toast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.append(t); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------- dados ---------- */
+const CATS = [
+  { id: 'cocadas', name: 'Cocadas', short: 'Cocadas', emoji: '🥥' },
+  { id: 'bolos', name: 'Bolos de Pote', short: 'Bolos de Pote', emoji: '🍰' },
+  { id: 'sabao', name: 'Sabão e Sabonetes Aromatizantes', short: 'Sabão e Sabonetes', emoji: '🧼' }
+];
+const catOf = id => CATS.find(c => c.id === id) || CATS[0];
+const SEED = [
+  { name: 'Cocada branca', cat: 'cocadas', desc: 'Tradicional, cremosa por dentro e douradinha por fora.', price: 3.5 },
+  { name: 'Cocada de maracujá', cat: 'cocadas', desc: 'Coco com um toque azedinho de maracujá.', price: 4 },
+  { name: 'Bolo de pote de ninho com morango', cat: 'bolos', desc: 'Massa fofinha, creme de leite ninho e morangos.', price: 12 },
+  { name: 'Bolo de pote de chocolate', cat: 'bolos', desc: 'Massa de chocolate e brigadeiro cremoso.', price: 11 },
+  { name: 'Sabonete de lavanda', cat: 'sabao', desc: 'Artesanal, hidratante, com aroma suave de lavanda.', price: 8 },
+  { name: 'Sabão artesanal de limão', cat: 'sabao', desc: 'Barra de sabão natural para a casa, perfume fresquinho.', price: 9 }
+].map(p => ({ ...p, id: uid(), img: '' }));
+
+let products = store.get('djo_products', null);
+if (!products) { products = SEED; store.set('djo_products', products); }
+let cfg = store.get('djo_cfg', { phone: '', pass: 'jo123' });
+let cart = store.get('djo_cart', {});
+let filter = 'todos';
+const saveProducts = () => store.set('djo_products', products);
+const saveCart = () => store.set('djo_cart', cart);
+
+/* ---------- catálogo ---------- */
+function card(p) {
+  const q = cart[p.id] || 0;
+  const photo = p.img ? `<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">` : `<span aria-hidden="true">${catOf(p.cat).emoji}</span>`;
+  const ctrl = q
+    ? `<div class="step"><button data-act="dec" data-id="${p.id}" aria-label="Remover um ${esc(p.name)}">−</button><b>${q}</b><button data-act="inc" data-id="${p.id}" aria-label="Adicionar mais um ${esc(p.name)}">+</button></div>`
+    : `<button class="add" data-act="inc" data-id="${p.id}">Adicionar</button>`;
+  return `<article class="card"><div class="ph">${photo}</div><div class="info"><h3>${esc(p.name)}</h3><p class="desc">${esc(p.desc)}</p><span class="price">${brl(p.price)}</span>${ctrl}</div></article>`;
+}
+function renderCatalog() {
+  $('#chips').innerHTML = [{ id: 'todos', short: 'Todos' }, ...CATS].map(c =>
+    `<button class="chip" data-act="filter" data-id="${c.id}" aria-pressed="${filter === c.id}">${esc(c.short)}</button>`).join('');
+  $('#catalog').innerHTML = CATS.filter(c => filter === 'todos' || filter === c.id).map(c => {
+    const items = products.filter(p => p.cat === c.id);
+    return `<section class="cat cat-${c.id}"><h2>${c.emoji} ${esc(c.name)}</h2>` +
+      (items.length ? `<div class="grid">${items.map(card).join('')}</div>` : `<p class="empty">Em breve, novidades por aqui.</p>`) + `</section>`;
+  }).join('');
+}
+
+/* ---------- carrinho ---------- */
+function cartItems() {
+  return Object.entries(cart).map(([id, q]) => ({ p: products.find(x => x.id === id), q })).filter(i => i.p && i.q > 0);
+}
+function cartTotal() { return cartItems().reduce((s, i) => s + i.p.price * i.q, 0); }
+function setQty(id, q) {
+  if (q <= 0) delete cart[id]; else cart[id] = q;
+  saveCart(); renderCatalog(); renderCart();
+}
+function renderCart() {
+  const items = cartItems(), count = items.reduce((s, i) => s + i.q, 0), total = cartTotal();
+  $('#badge').textContent = count;
+  $('#bar').hidden = !count;
+  $('#barInfo').textContent = `${count} ${count === 1 ? 'item' : 'itens'} · ${brl(total)}`;
+  $('#cartTotal').textContent = brl(total);
+  $('#cartForm').hidden = $('#sendWa').hidden = !items.length;
+  $('#cartBody').innerHTML = items.length ? items.map(({ p, q }) => `
+    <div class="line"><div class="thumb">${p.img ? `<img src="${esc(p.img)}" alt="">` : catOf(p.cat).emoji}</div>
+      <div class="t"><b>${esc(p.name)}</b><span class="hint">${brl(p.price)} cada · ${brl(p.price * q)}</span></div>
+      <div class="step" style="gap:4px"><button data-act="dec" data-id="${p.id}" aria-label="Menos um">−</button><b>${q}</b><button data-act="inc" data-id="${p.id}" aria-label="Mais um">+</button></div>
+    </div>`).join('') : `<p class="empty">Seu carrinho está vazio. Escolha algo gostoso no catálogo.</p>`;
+}
+function sendWhatsApp() {
+  const items = cartItems();
+  if (!items.length) return;
+  const phone = (cfg.phone || '').replace(/\D/g, '');
+  if (!phone) { toast('Número de WhatsApp ainda não configurado. Avise a Jô.'); return; }
+  const name = $('#cName').value.trim(), note = $('#cNote').value.trim();
+  const lines = [`*Pedido - Delícias da Jô* 🍰`, ''];
+  if (name) lines.push(`Cliente: ${name}`, '');
+  items.forEach(({ p, q }) => lines.push(`• ${q}x ${p.name} - ${brl(p.price * q)}`));
+  lines.push('', `*Total: ${brl(cartTotal())}*`);
+  if (note) lines.push('', `Obs.: ${note}`);
+  const wa = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
+  if (window.AndroidBridge) window.AndroidBridge.openUrl(wa); else window.open(wa, '_blank');
+}
+
+/* ---------- admin ---------- */
+const isAdmin = () => sessionStorage.getItem('djo_admin') === '1';
+function showAdmin(on) {
+  $('#shop').hidden = on; $('#admin').hidden = !on;
+  document.body.style.paddingBottom = on ? '24px' : '';
+  if (on) { renderAdmin(); $('#cfgPhone').value = cfg.phone || ''; $('#cfgPass').value = ''; }
+  scrollTo(0, 0);
+}
+function renderAdmin() {
+  $('#admList').innerHTML = products.length ? products.map(p => `
+    <div class="line"><div class="thumb">${p.img ? `<img src="${esc(p.img)}" alt="">` : catOf(p.cat).emoji}</div>
+      <div class="t"><b>${esc(p.name)}</b><span class="hint">${esc(catOf(p.cat).short)} · ${brl(p.price)}</span></div>
+      <button class="mini" data-act="edit" data-id="${p.id}">Editar</button>
+      <button class="mini del" data-act="del" data-id="${p.id}">Excluir</button></div>`).join('')
+    : `<p class="empty" style="padding:14px 0">Nenhum produto ainda. Toque em “Novo produto”.</p>`;
+}
+let imgData = '';
+function setPreview(src) {
+  imgData = src || '';
+  $('#pPrev').hidden = $('#rmImg').hidden = !imgData;
+  if (imgData) $('#pPrev').src = imgData;
+}
+function openProd(p) {
+  $('#prodTitle').textContent = p ? 'Editar produto' : 'Novo produto';
+  $('#pCat').innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  $('#prodForm').dataset.id = p ? p.id : '';
+  $('#pName').value = p ? p.name : '';
+  $('#pCat').value = p ? p.cat : CATS[0].id;
+  $('#pDesc').value = p ? p.desc : '';
+  $('#pPrice').value = p ? String(p.price).replace('.', ',') : '';
+  $('#pCost').value = ''; $('#pMargin').value = '100'; $('#pFile').value = '';
+  $('#pUrl').value = p && /^https?:/.test(p.img) ? p.img : '';
+  calc(); setPreview(p ? p.img : '');
+  $('#prodDlg').showModal();
+}
+let calcPrice = 0;
+function calc() {
+  const cost = num($('#pCost').value), m = num($('#pMargin').value);
+  calcPrice = cost > 0 ? Math.ceil(cost * (1 + m / 100) * 20) / 20 : 0; // arredonda para cima, de 5 em 5 centavos
+  $('#useCalc').hidden = !calcPrice;
+  $('#calcOut').textContent = calcPrice
+    ? `Preço sugerido: ${brl(calcPrice)} (lucro de ${brl(calcPrice - cost)} por unidade)` : 'Informe o custo para ver o preço sugerido.';
+}
+function resizeImage(file) {
+  return new Promise((ok, fail) => {
+    const r = new FileReader();
+    r.onerror = fail;
+    r.onload = () => {
+      const im = new Image();
+      im.onerror = fail;
+      im.onload = () => {
+        const s = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+        c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        ok(c.toDataURL('image/jpeg', 0.8));
+      };
+      im.src = r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act],[data-close]');
+  if (!t) return;
+  if (t.dataset.close !== undefined) { t.closest('dialog').close(); return; }
+  const { act, id } = t.dataset;
+  if (act === 'inc') setQty(id, (cart[id] || 0) + 1);
+  else if (act === 'dec') setQty(id, (cart[id] || 0) - 1);
+  else if (act === 'filter') { filter = id; renderCatalog(); }
+  else if (act === 'edit') openProd(products.find(p => p.id === id));
+  else if (act === 'del') {
+    const p = products.find(x => x.id === id);
+    if (p && confirm(`Excluir “${p.name}”? Esta ação não pode ser desfeita.`)) {
+      products = products.filter(x => x.id !== id); delete cart[id];
+      saveProducts(); saveCart(); renderAdmin(); renderCatalog(); renderCart(); toast('Produto excluído');
+    }
+  }
+});
+$('#openCart').onclick = $('#barBtn').onclick = () => { renderCart(); $('#cartDlg').showModal(); };
+$('#sendWa').onclick = sendWhatsApp;
+$('#openAdmin').onclick = () => isAdmin() ? showAdmin(true) : ($('#loginPass').value = '', $('#loginDlg').showModal());
+$('#exitAdmin').onclick = () => { sessionStorage.removeItem('djo_admin'); showAdmin(false); renderCatalog(); renderCart(); };
+$('#loginForm').onsubmit = e => {
+  e.preventDefault();
+  if ($('#loginPass').value === cfg.pass) { sessionStorage.setItem('djo_admin', '1'); $('#loginDlg').close(); showAdmin(true); }
+  else { $('#loginHint').textContent = 'Senha incorreta. Tente de novo.'; $('#loginPass').select(); }
+};
+$('#newProd').onclick = () => openProd(null);
+['pCost', 'pMargin'].forEach(i => $('#' + i).oninput = calc);
+$('#useCalc').onclick = () => { $('#pPrice').value = calcPrice.toFixed(2).replace('.', ','); toast('Preço aplicado'); };
+$('#pFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { setPreview(await resizeImage(f)); $('#pUrl').value = ''; } catch { toast('Não foi possível ler essa imagem.'); }
+};
+$('#pUrl').oninput = e => { const v = e.target.value.trim(); if (/^https?:\/\//.test(v)) setPreview(v); else if (!v) setPreview(''); };
+$('#rmImg').onclick = () => { setPreview(''); $('#pFile').value = ''; $('#pUrl').value = ''; };
+$('#prodForm').onsubmit = e => {
+  e.preventDefault();
+  const price = num($('#pPrice').value);
+  if (price <= 0) { toast('Informe um preço maior que zero.'); return; }
+  const data = { name: $('#pName').value.trim(), cat: $('#pCat').value, desc: $('#pDesc').value.trim(), price, img: imgData };
+  const id = e.target.dataset.id;
+  if (id) products = products.map(p => p.id === id ? { ...p, ...data } : p);
+  else products.push({ id: uid(), ...data });
+  if (!saveProducts()) return;
+  $('#prodDlg').close(); renderAdmin(); renderCatalog(); renderCart(); toast('Produto salvo');
+};
+$('#saveCfg').onclick = () => {
+  cfg.phone = $('#cfgPhone').value.replace(/\D/g, '');
+  const np = $('#cfgPass').value;
+  if (np) { if (np.length < 4) { toast('A senha precisa ter ao menos 4 caracteres.'); return; } cfg.pass = np; }
+  if (store.set('djo_cfg', cfg)) { $('#cfgPass').value = ''; toast('Configurações salvas'); }
+};
+$('#exportBtn').onclick = () => {
+  const json = JSON.stringify({ products, phone: cfg.phone }, null, 1);
+  if (window.AndroidBridge) { window.AndroidBridge.saveFile('delicias-da-jo-copia.json', json); return; }
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'delicias-da-jo-copia.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+$('#importBtn').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async e => {
+  try {
+    const d = JSON.parse(await e.target.files[0].text());
+    if (!Array.isArray(d.products)) throw 0;
+    if (!confirm('Substituir os produtos atuais pela cópia?')) return;
+    products = d.products.map(p => ({ id: p.id || uid(), name: String(p.name || ''), cat: catOf(p.cat).id, desc: String(p.desc || ''), price: Number(p.price) || 0, img: String(p.img || '') }));
+    if (d.phone) cfg.phone = String(d.phone).replace(/\D/g, '');
+    saveProducts(); store.set('djo_cfg', cfg); $('#cfgPhone').value = cfg.phone;
+    renderAdmin(); toast('Cópia restaurada');
+  } catch { toast('Arquivo de cópia inválido.'); }
+  e.target.value = '';
+};
+
+/* ---------- PWA ---------- */
+let installEvt;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#installBtn').hidden = false; });
+$('#installBtn').onclick = async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt = null; $('#installBtn').hidden = true; };
+addEventListener('appinstalled', () => $('#installBtn').hidden = true);
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+
+/* ---------- início ---------- */
+renderCatalog(); renderCart();
+</script>
+</body>
+</html>
